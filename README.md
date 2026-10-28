@@ -46,6 +46,10 @@ npm run build      # prebuild migruje i zasila, potem buduje witrynę statyczną
 npm run preview
 ```
 
+## Filtrowanie katalogu
+
+Na stronie głównej można filtrować gry po kategorii i wydawcy. Zaznaczone kategorie oraz wydawca są łączone operatorem AND; po zaznaczeniu kilku kategorii gra musi pasować do każdej z nich. Obecny model przypisuje grze jedną kategorię, dlatego wybór wielu kategorii nie zwróci wyników. Filtry działają w przeglądarce na prerenderowanej liście i nie wymagają API.
+
 ## Baza danych
 
 Baza SQLite powstaje z `db/games.csv`. Nie ma żadnych danych produkcyjnych do migrowania.
