@@ -24,6 +24,26 @@ test.describe('Lista gier i nawigacja', () => {
     });
   });
 
+  test('wyświetla ocenę wyłącznie graficznie na kartach gier', async ({ page }) => {
+    await page.goto('/');
+
+    const gameRatings = page.getByTestId('game-rating');
+    await expect(gameRatings.first()).toHaveAttribute('aria-label', /^Ocena \d\.\d na 5$/);
+
+    for (let index = 0; index < await gameRatings.count(); index++) {
+      const rating = gameRatings.nth(index);
+      const ratingLabel = await rating.getAttribute('aria-label');
+      const ratingValue = Number(ratingLabel?.match(/\d\.\d/)?.[0]);
+
+      await expect(rating).toHaveText(`★★★★★ (${ratingValue.toFixed(1)}/5)`);
+      await expect(rating.locator('[data-rating-star="half"]')).toHaveCount(ratingValue % 1 >= 0.5 ? 1 : 0);
+
+      if (ratingValue % 1 >= 0.5) {
+        await expect(rating.locator('[data-rating-star="half"]')).toHaveCSS('background-image', /linear-gradient/);
+      }
+    }
+  });
+
   test('po kliknięciu gry przechodzi na właściwą stronę szczegółów', async ({ page }) => {
     let gameId: string | null;
     let gameTitle: string | null;
