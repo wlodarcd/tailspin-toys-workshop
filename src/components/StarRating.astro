@@ -1,18 +1,48 @@
 ---
-import { clampRating, formatStarRating } from '../lib/ratings';
+import { clampRating } from '../lib/ratings';
 
 interface Props {
     rating: number | null;
 }
 
 const { rating } = Astro.props;
+const clampedRating = rating === null ? 0 : clampRating(rating);
+const fullStars = Math.floor(clampedRating);
+const hasHalfStar = clampedRating % 1 >= 0.5;
+const starStates = Array.from({ length: 5 }, (_, index): 'full' | 'half' | 'empty' => {
+    if (index < fullStars) return 'full';
+    if (index === fullStars && hasHalfStar) return 'half';
+    return 'empty';
+});
 ---
 
-{rating !== null && (
-    <div class="flex items-center">
-        <span class="bg-blue-500/20 text-blue-400 text-sm px-3 py-1 rounded-full" data-testid="game-rating">
-            <span class="text-yellow-400">{formatStarRating(rating)}</span>
-            {clampRating(rating).toFixed(1)}
-        </span>
-    </div>
-)}
+<div class="flex items-center">
+    <span
+        class="bg-blue-500/20 text-blue-400 text-sm px-3 py-1 rounded-full"
+        data-testid="game-rating"
+        role="img"
+        aria-label={rating === null ? 'Brak oceny' : `Ocena ${clampedRating.toFixed(1)} na 5`}
+    >
+        {rating === null ? (
+            'Brak oceny'
+        ) : (
+            <span class="inline-flex items-center" data-testid="game-rating-stars" aria-hidden="true">
+                {starStates.map((state) => (
+                    <span
+                        class:list={[
+                            'text-base leading-none',
+                            state === 'full' && 'text-yellow-400',
+                            state === 'empty' && 'text-slate-500',
+                            state === 'half' && 'bg-clip-text text-transparent',
+                        ]}
+                        style={state === 'half' ? 'background-image: linear-gradient(90deg, #facc15 50%, #64748b 50%)' : undefined}
+                        data-rating-star={state}
+                    >
+                        ★
+                    </span>
+                ))}
+            </span>
+            <span class="ml-1">{` (${clampedRating.toFixed(1)}/5)`}</span>
+        )}
+    </span>
+</div>
